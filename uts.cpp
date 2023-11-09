@@ -6,6 +6,14 @@
 
 using namespace std;
 
+void pembersihLayar() {
+    #ifdef _WIN32
+    system("cls");
+    #else
+    system("clear");
+    #endif
+}
+
 struct Obat {
     int nomorObat;
     string nama;
@@ -325,6 +333,41 @@ public:
     }
 }
     
+    bool tampilkanRiwayatResep(int* _nomorPelanggan){
+            
+    Resep* resepSekarang = daftarResep;
+    Obat* obat;
+    int i = 1;
+
+    while (resepSekarang != nullptr) {
+        if (resepSekarang->pelanggan->nomorPelanggan == *_nomorPelanggan) {
+          
+                pembersihLayar();
+                cout << "Riwayat Resep Untuk Pasien Bernama " << resepSekarang->pelanggan->nama << "\n\nTanggal : "
+                            << resepSekarang->tanggal << "\n\nObat Yang Diresepkan :\n\n" << endl;
+
+                obat = resepSekarang->obatDiresepkan;
+
+                while (obat != nullptr) {
+                    cout << i++ << ". Nama Obat : " << obat->nama << endl;
+                    obat = obat->selanjutnya;
+                }
+                
+                cout << "\n" << endl;
+                
+        }
+
+        resepSekarang = resepSekarang->selanjutnya;
+    }
+    
+    if (i > 1){
+            return true;
+    }
+    
+    return false;
+    
+    }
+    
     bool cetakRiwayatResep(int* _nomorPelanggan) {
     ofstream riwayatResep("Riwayat Resep.txt");
 
@@ -423,6 +466,42 @@ public:
         }
     }
     
+    bool tampilkanRiwayatTransaksi(int* _nomorPelanggan){
+    
+    Transaksi* transaksi = daftarTransaksi;
+    
+    int i = 1;
+    
+    while (transaksi != nullptr){
+    if (transaksi->resep->pelanggan->nomorPelanggan ==
+            *_nomorPelanggan){
+         
+         pembersihLayar();
+         cout << "Riwayat transaksi "
+         << transaksi->resep->pelanggan->nama
+         << "\n\n"
+         << i++
+         << ". Tanggal : "
+         << transaksi->tanggal
+         << "\nTotal Harga : Rp"
+         << transaksi->totalHarga
+         << "\n"
+         << endl;
+                 
+    }
+    
+    transaksi = transaksi->selanjutnya;
+    
+    }
+    
+    if (i > 1){
+        return true;
+    }
+    
+    return false;
+    
+    }
+    
     bool cetakLaporanPenjualanHarian(string* tanggal ) {
             
         ofstream laporanPenjualanHarian("Laporan Penjualan Harian.txt");
@@ -457,14 +536,6 @@ public:
         
     }
 };
-
-void pembersihLayar() {
-    #ifdef _WIN32
-    system("cls");
-    #else
-    system("clear");
-    #endif
-}
 
 int main() {
     Apotek apotek;
@@ -677,6 +748,8 @@ string tanggal(date);
     cout << "Masukkan Menu : \n"
     << "1. Tambah Pelanggan\n"
     << "2. Tampilkan Daftar Pelanggan\n"
+    << "3. Tampilkan Riwayat Resep Pelanggan\n"
+    << "4. Tampilkan Riwayat Transaksi Pelanggan\n"
     << endl;
     
     cin >> pilihan;
@@ -712,6 +785,30 @@ string tanggal(date);
     else if (pilihan == 2){
            pembersihLayar();
            manajemenPelanggan.tampilkanDataPelanggan();
+    }
+    else if (pilihan == 3){
+            pembersihLayar();
+            manajemenPelanggan.tampilkanDataPelanggan();
+            cout << "Masukkan nomor pelanggan yang ingin ditampilkan riwayat resepnya : ";
+            cin >> pilihan;
+            
+            if (!manajemenResep.tampilkanRiwayatResep(&pilihan)){
+                    pembersihLayar();
+                    cout << "Tidak ada data riwayat yang ditemukan\n"
+                    << endl;
+            }
+    }
+    else if (pilihan == 4){
+            pembersihLayar();
+            manajemenPelanggan.tampilkanDataPelanggan();
+            cout << "Masukkan nomor pelanggan yang ingin ditampilkan riwayat transaksinya : ";
+            cin >> pilihan;
+            
+            if (!manajemenPenjualan.tampilkanRiwayatTransaksi(&pilihan)){
+                    pembersihLayar();
+                    cout << "Tidak ada data riwayat yang ditemukan\n"
+                    << endl;
+            }
     }
     else {
             pembersihLayar();
