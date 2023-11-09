@@ -545,10 +545,9 @@ string tanggal(date);
     Pelanggan* pelanggan = manajemenPelanggan.cariPelanggan(&nomorPelanggan);
 
     if (pelanggan != nullptr) {
-        Obat* obatDiresepkan = nullptr; 
+        Obat* obatDiresepkan = nullptr;
+        Obat* _obat = nullptr;
         
-
-
         while (nomorObat != 0) {
     apotek.tampilkanObatTersedia();
 
@@ -556,12 +555,14 @@ string tanggal(date);
     cin >> nomorObat;
 
     if (nomorObat != 0) {
-        Obat* _obat = apotek.cariObat(&nomorObat);
+        _obat = apotek.cariObat(&nomorObat);
 
         if (_obat != nullptr) {
-            // Tambahkan referensi obat ke dalam resep
-            _obat->selanjutnya = obatDiresepkan;
-            obatDiresepkan = _obat;
+                
+        Obat* obatBaru = new Obat(_obat->nama, _obat->stok, _obat->harga);
+        obatBaru->selanjutnya = obatDiresepkan;
+        obatDiresepkan = obatBaru;
+       
         } else {
             cout << "Obat dengan nomor tersebut tidak tersedia." << endl;
         }
