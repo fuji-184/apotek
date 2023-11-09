@@ -91,7 +91,7 @@ public:
             << sekarang->nama
             << "\nStok: "
             << sekarang->stok
-            << "\nHarga: "
+            << "\nHarga: Rp"
             << sekarang->harga
             << "\n\n"
             << endl;
@@ -128,7 +128,7 @@ public:
                 << obatSekarang->nama
                 << "\nStok : "
                 << obatSekarang->stok
-                << "\nHarga : "
+                << "\nHarga : Rp"
                 << obatSekarang->harga
                 << "\n\n"
                 << endl;
@@ -413,7 +413,7 @@ public:
             << transaksi->tanggal
             << "\nNomor Resep : "
             << transaksi->resep->nomorResep
-            << "\nTotal Harga: "
+            << "\nTotal Harga: Rp"
             << transaksi->totalHarga
             << "\n\n"
             << endl;
@@ -438,7 +438,7 @@ public:
                       << transaksi->nomorTransaksi
                       << "\nTanggal : "
                       << transaksi->tanggal
-                      << "\n Total Harga : "
+                      << "\nTotal Harga : Rp"
                       << transaksi->totalHarga
                       << "\n\n"
                       << endl;
@@ -601,14 +601,24 @@ string tanggal(date);
     Pelanggan* pelanggan = manajemenPelanggan.cariPelanggan(&nomorPelanggan);
 
     if (pelanggan != nullptr) {
+        pembersihLayar();
+        cout << "Pelanggan "
+        << pelanggan->nama
+        << "berhasil dipilih"
+        << endl;
         Obat* obatDiresepkan = nullptr;
         Obat* _obat = nullptr;
         
+        int jumlahObat = 0;
+        
         while (nomorObat != 0) {
-    pembersihLayar();
+    
     apotek.tampilkanObatTersedia();
-
-    cout << "Masukkan nomor obat yang diresepkan (0 untuk selesai): ";
+    
+    cout << "Sebanyak "
+    << jumlahObat
+    << " ditambahkan ke resep\n\n";
+    cout << "Masukkan nomor obat yang ingin ditambahkan (masukkan angka 0 untuk selesai): ";
     cin >> nomorObat;
 
     if (nomorObat != 0) {
@@ -627,6 +637,7 @@ string tanggal(date);
         }
         
         _obat->stok--;
+        jumlahObat++;
        
         } else {
             pembersihLayar();
@@ -741,9 +752,27 @@ string tanggal(date);
             
     }
     
-    if(manajemenPenjualan.catatPenjualan(resep, totalHarga, tanggal)){
+    pembersihLayar();     
+    cout << "Total harga : Rp"
+    << totalHarga;
+    
+    double uang;
+    double kembalian = 0;
+    
+    cout << "\n\nMasukkan pembayaran : ";
+    
+    cin >> uang;
+    
+    if (uang > totalHarga){
             pembersihLayar();
-            cout << "Transaksi berhasil\n" << endl;
+            kembalian = uang - totalHarga;
+            cout << "Kembalian : Rp"
+            << kembalian
+            << "\n"
+            << endl;
+            
+            if(manajemenPenjualan.catatPenjualan(resep, totalHarga, tanggal)){
+            cout << "\nTransaksi berhasil\n" << endl;
     } else {
             pembersihLayar();
             cout << "Transaksi gagal\n" << endl;
@@ -773,14 +802,32 @@ string tanggal(date);
             
     }
     
-    struk << totalHarga;
+    struk << "Total harga : Rp"
+    << totalHarga
+    << "\nUang pembayaran : Rp"
+    << uang
+    << endl;
+    
+    if (kembalian != 0){
+            struk << "\nKembalian : Rp"
+            << kembalian
+            << endl;
+    }
      
     struk.close();
     
-    cout << "Struk berhasil dibuat\n"
+    cout << "\nStruk berhasil dibuat\n"
     << endl;
     } else {
-            cout << "Gagal membuka file\n"
+            cout << "\nGagal membuka file\n"
+            << endl;
+    }
+    
+    } else if (uang < totalHarga){
+            pembersihLayar();
+            cout << "Uang pembayaran kurang : Rp"
+            << totalHarga - uang
+            << "\n"
             << endl;
     }
     
@@ -841,7 +888,7 @@ string tanggal(date);
 }
 else if (pilihan == 6) {
         pembersihLayar();
-        cout << "Terima kasih telah menggunakan program ini! Program berhasil dihentikan." << endl;
+        cout << "Terima kasih telah menggunakan program ini! Program berhasil dihentikan" << endl;
         break;
     } 
     else {
