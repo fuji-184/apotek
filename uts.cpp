@@ -2,6 +2,7 @@
 #include <string>
 #include <ctime>
 #include <fstream>
+#include <limits>
 
 using namespace std;
 
@@ -306,18 +307,34 @@ public:
     }
 }
     
-    void cetakRiwayatResep() {
+    void cetakRiwayatResep(int* _nomorPelanggan) {
+    ofstream riwayatResep("Riwayat Resep.txt", ios::app);
+
     Resep* resepSekarang = daftarResep;
 
-    cout << "Riwayat Resep:" << endl;
     while (resepSekarang != nullptr) {
-        cout << "Nomor Resep: " << resepSekarang->nomorResep << endl;
-        cout << "Tanggal: " << resepSekarang->tanggal << endl;
-        //looping obatDiresepkan
+        if (resepSekarang->pelanggan->nomorPelanggan == *_nomorPelanggan) {
+            if (riwayatResep.is_open()) {
+                riwayatResep << "Riwayat Resep Untuk Pasien Bernama " << resepSekarang->pelanggan->nama << "\n\nTanggal : "
+                            << resepSekarang->tanggal << "\n\nObat Yang Diresepkan :\n\n" << endl;
+
+                Obat* obat = resepSekarang->obatDiresepkan;
+
+                int i = 1;
+
+                while (obat != nullptr) {
+                    riwayatResep << i++ << ". Nama Obat : " << obat->nama << endl;
+                    obat = obat->selanjutnya;
+                }
+            }
+        }
 
         resepSekarang = resepSekarang->selanjutnya;
     }
+
+    riwayatResep.close();
 }
+
 };
 
 struct Transaksi {
@@ -391,7 +408,9 @@ public:
                 
                Transaksi* transaksi = daftarTransaksi;
                
-               while (transaksi != nullptr && transaksi->tanggal == *tanggal){
+               while (transaksi != nullptr){
+                       
+                    if (transaksi->tanggal == *tanggal){
                       laporanPenjualanHarian << "Nomor Transaksi : "
                       << transaksi->nomorTransaksi
                       << "\nTanggal : "
@@ -402,6 +421,7 @@ public:
                       << endl;
                       
                     transaksi = transaksi->selanjutnya;
+                    }
                }
                
                laporanPenjualanHarian.close();
@@ -411,12 +431,6 @@ public:
     }
 };
 
-string dapatkanBulanDariTanggal(string& tanggal) {
-            
-    return tanggal.substr(5, 2);
-    
-}
-
 int main() {
     Apotek apotek;
     ManajemenResep manajemenResep;
@@ -425,7 +439,7 @@ int main() {
     
     time_t t = time(0);
 tm* now = localtime(&t);
-char date[11]; // 11 karakter untuk "YYYY-MM-DD\0"
+char date[11];
 strftime(date, 11, "%Y-%m-%d", now);
 string tanggal(date);
 
@@ -674,7 +688,15 @@ if (_obat != nullptr) {
     } else if (pilihan == 2){
             manajemenPenjualan.cetakLaporanPenjualanHarian(&tanggal);
     } else if (pilihan == 3){
-            break;
+            
+            manajemenPelanggan.tampilkanDataPelanggan();
+            
+            cout << "Masukkan Nomor Pelanggan Yang Ingin Dicetak Riwayat Resepnya : ";
+            
+            cin >> pilihan;
+            
+            manajemenResep.cetakRiwayatResep(&pilihan);
+            
     } else {
             break;
     }
