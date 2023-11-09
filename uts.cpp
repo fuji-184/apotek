@@ -32,7 +32,8 @@ public:
         nomorObat = 1;
     }
 
-    void tambahObat(string nama, int stok, double harga) {
+    bool tambahObat(string nama, int stok, double harga) {
+    
     Obat* obatBaru = new Obat(nama, stok, harga);
     obatBaru->selanjutnya = nullptr;
 
@@ -48,9 +49,16 @@ public:
     
     obatBaru->nomorObat = nomorObat;
     nomorObat++;
+    
+    return true;
+    }
+    
+    Obat* tambahObat2(string* nama, double harga){
+            Obat* obat = new Obat(*nama, 0, harga);
+            return obat;
     }
 
-    void hapusObat(int _nomorObat) {
+    bool hapusObat(int _nomorObat) {
         Obat* sekarang = daftarObat;
         Obat* sebelumnya = nullptr;
 
@@ -62,13 +70,14 @@ public:
                     sebelumnya->selanjutnya = sekarang->selanjutnya;
                 }
                 delete sekarang;
-                return;
+                return true;
             }
             sebelumnya = sekarang;
             sekarang = sekarang->selanjutnya;
         }
 
-        cout << "Obat dengan nomor " << _nomorObat << " tidak ditemukan." << endl;
+        cout << "Obat dengan nomor " << _nomorObat << " tidak ditemukan\n" << endl;
+        return false;
     }
 
     void tampilkanObatTersedia() {
@@ -104,7 +113,7 @@ public:
         return nullptr;
     }
     
-    void cetakLaporanInventaris() {
+    bool cetakLaporanInventaris() {
   
     ofstream laporanInventarisObat("Laporan Inventaris Obat.txt");
     
@@ -130,7 +139,13 @@ public:
         
         laporanInventarisObat.close();
         
+    } else {
+            cout << "Gagal membuka file\n"
+            << endl;
+            return false;
     }
+    
+    return true;
     
 }
 };
@@ -161,7 +176,7 @@ public:
         nomorPelanggan = 1;
     }
 
-    void tambahPelanggan(string nama, string alamat, string nomorKontak) {
+    bool tambahPelanggan(string nama, string alamat, string nomorKontak) {
     Pelanggan* pelangganBaru = new Pelanggan(nama, alamat, nomorKontak);
 
     if (daftarPelanggan == nullptr) {
@@ -176,6 +191,8 @@ public:
 
     pelangganBaru->nomorPelanggan = nomorPelanggan;
     nomorPelanggan++;
+    
+    return true;
     }
 
     void tampilkanDataPelanggan() {
@@ -241,7 +258,7 @@ public:
         nomorResep = 1;
     }
 
-    void tambahResep(Pelanggan* pelanggan, string tanggal, Obat* obatDiresepkan) {
+    bool tambahResep(Pelanggan* pelanggan, string tanggal, Obat* obatDiresepkan) {
             
     Resep* resepBaru = new Resep(nomorResep, tanggal);
 
@@ -259,6 +276,7 @@ public:
         current->selanjutnya = resepBaru;
     }
     nomorResep++;
+    return true;
 }
 
     Resep* cariResep(int* nomor) {
@@ -307,7 +325,7 @@ public:
     }
 }
     
-    void cetakRiwayatResep(int* _nomorPelanggan) {
+    bool cetakRiwayatResep(int* _nomorPelanggan) {
     ofstream riwayatResep("Riwayat Resep.txt");
 
     Resep* resepSekarang = daftarResep;
@@ -328,12 +346,15 @@ public:
                     obat = obat->selanjutnya;
                 }
             }
+            
+            return true;
         }
 
         resepSekarang = resepSekarang->selanjutnya;
     }
 
     riwayatResep.close();
+    return false;
 }
 
 };
@@ -363,7 +384,7 @@ public:
         nomorTransaksi = 1;
     }
 
-    void catatPenjualan(Resep* resep, double totalHarga, string tanggal) {
+    bool catatPenjualan(Resep* resep, double totalHarga, string tanggal) {
 
         Transaksi* transaksiBaru = new Transaksi(totalHarga, tanggal);
         
@@ -376,6 +397,7 @@ public:
         daftarTransaksi = transaksiBaru;
         
         nomorTransaksi++;
+        return true;
     }
 
     void tampilkanTransaksi() {
@@ -401,7 +423,7 @@ public:
         }
     }
     
-    void cetakLaporanPenjualanHarian(string* tanggal ) {
+    bool cetakLaporanPenjualanHarian(string* tanggal ) {
             
         ofstream laporanPenjualanHarian("Laporan Penjualan Harian.txt");
         
@@ -426,11 +448,23 @@ public:
                }
                
                laporanPenjualanHarian.close();
-               
+               return true;
+        } else {
+              cout << "Gagal membuka file\n" 
+              << endl;
+              return false;
         }
         
     }
 };
+
+void pembersihLayar() {
+    #ifdef _WIN32
+    system("cls");
+    #else
+    system("clear");
+    #endif
+}
 
 int main() {
     Apotek apotek;
@@ -476,7 +510,7 @@ string tanggal(date);
         
         if (cin.peek() == ' ') {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cout << "Masukan tidak valid. Harap masukkan angka (1-6)." << endl;
+    cout << "Masukan tidak valid. Harap masukkan angka (1-6)\n" << endl;
 } else {
         int pilihan;
         cin >> pilihan;
@@ -484,11 +518,13 @@ string tanggal(date);
         if (cin.fail() || pilihan < 1 || pilihan > 6) {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cout << "Masukan tidak valid. Harap masukkan angka (1-6)." << endl;
+    cout << "Masukan tidak valid. Harap masukkan angka (1-6)\n" << endl;
 } else {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
         
         if (pilihan == 1) {
+        
+        pembersihLayar();
         
         cout << "Masukkan menu : \n"
         << "1. Tambah Obat\n"
@@ -503,33 +539,52 @@ string tanggal(date);
     int stokObat;
     double hargaObat;
     
+    pembersihLayar();
     cout << "Masukkan nama obat: ";
     cin >> namaObat;
     
+    pembersihLayar();
     cout << "Masukkan stok obat: ";
     cin >> stokObat;
     
+    pembersihLayar();
     cout << "Masukkan harga obat: ";
     cin >> hargaObat;
     
-    apotek.tambahObat(namaObat, stokObat, hargaObat);
+    if (apotek.tambahObat(namaObat, stokObat, hargaObat)){
+            pembersihLayar();
+            cout << "Obat berhasil ditambahkan\n"
+            << endl;
+    } else {
+            pembersihLayar();
+            cout << "Obat gagal ditambahkan\n"
+            << endl;
+    }
         }
     else if (pilihan == 2){
             int nomorObat;
             apotek.tampilkanObatTersedia();
             cout << "Masukkan Nomor Obat : " << endl;
             cin >> nomorObat;
-            apotek.hapusObat(nomorObat);
-            apotek.tampilkanObatTersedia();
+            pembersihLayar();
+            if(apotek.hapusObat(nomorObat)){
+                    cout << "Obat berhasil dihapus\n"
+                    << endl;
+                    apotek.tampilkanObatTersedia();
+            }
     }
     else if (pilihan == 3){
+            pembersihLayar();
             apotek.tampilkanObatTersedia();
     }
     else {
+            cout << "Menu yang dimasukkan tidak ditemukan, pastikan menu yang dimasukkan sesuai dengan nomor menu\n"
+            << endl;
             break;
     }
 } else if (pilihan == 2) {
-        
+    
+    pembersihLayar();    
     cout << "Masukkan pilihan : \n1. Tambah Resep\n2. Tampilkan Resep \n\n: ";
     cin >> pilihan;
     
@@ -537,6 +592,7 @@ string tanggal(date);
     int nomorPelanggan;
     int nomorObat = 1;
 
+    pembersihLayar();
     manajemenPelanggan.tampilkanDataPelanggan();
 
     cout << "Masukkan nomor Pelanggan : ";
@@ -549,6 +605,7 @@ string tanggal(date);
         Obat* _obat = nullptr;
         
         while (nomorObat != 0) {
+    pembersihLayar();
     apotek.tampilkanObatTersedia();
 
     cout << "Masukkan nomor obat yang diresepkan (0 untuk selesai): ";
@@ -559,30 +616,53 @@ string tanggal(date);
 
         if (_obat != nullptr) {
                 
-        Obat* obatBaru = new Obat(_obat->nama, _obat->stok, _obat->harga);
-        obatBaru->selanjutnya = obatDiresepkan;
-        obatDiresepkan = obatBaru;
+        if (obatDiresepkan == nullptr){
+                obatDiresepkan = apotek.tambahObat2(&_obat->nama,
+                _obat->harga);
+        } else {
+                Obat* obatBaru = apotek.tambahObat2(&_obat->nama,
+                _obat->harga);
+                obatBaru->selanjutnya = obatDiresepkan;
+                obatDiresepkan = obatBaru;
+        }
+        
+        _obat->stok--;
        
         } else {
-            cout << "Obat dengan nomor tersebut tidak tersedia." << endl;
+            pembersihLayar();
+            cout << "Obat dengan nomor tersebut tidak tersedia\n" << endl;
         }
     }
 }
 
 
-        manajemenResep.tambahResep(pelanggan, tanggal, obatDiresepkan);
+        if(manajemenResep.tambahResep(pelanggan, tanggal, obatDiresepkan)){
+                pembersihLayar();
+                cout << "Resep berhasil ditambahkan\n"
+                << endl;
+        } else {
+                pembersihLayar();
+                cout << "Resep gagal ditambahkan\n"
+                << endl;
+        }
     } else {
-        cout << "Pelanggan tidak ditemukan." << endl;
+        pembersihLayar();
+        cout << "Pelanggan tidak ditemukan\n" << endl;
     }
 }
  else if (pilihan == 2){
+            pembersihLayar();
             manajemenResep.tampilkanResep();
     } else {
+            pembersihLayar();
+            cout << "Menu yang dimasukkan tidak ditemukan, pastikan menu yang dimasukkan sesuai dengan nomor menu\n"
+            << endl;
             break;
     }
         
 } else if (pilihan == 3) {
-        
+    
+    pembersihLayar();    
     cout << "Masukkan Menu : \n"
     << "1. Tambah Pelanggan\n"
     << "2. Tampilkan Daftar Pelanggan\n"
@@ -595,32 +675,50 @@ string tanggal(date);
     string alamatPelanggan;
     string nomorKontakPelanggan;
     
+    pembersihLayar();
     cout << "Masukkan nama pelanggan: ";
     cin >> namaPelanggan;
     
+    pembersihLayar();
     cout << "Masukkan alamat pelanggan: ";
     cin >> alamatPelanggan;
     
+    pembersihLayar();
     cout << "Masukkan nomor kontak pelanggan: ";
     cin >> nomorKontakPelanggan;
     
-    manajemenPelanggan.tambahPelanggan(namaPelanggan, alamatPelanggan, nomorKontakPelanggan);
+    if(manajemenPelanggan.tambahPelanggan(namaPelanggan, alamatPelanggan,
+    nomorKontakPelanggan)){
+            pembersihLayar();
+            cout << "Pelanggan berhasil ditambahkan\n"
+            << endl;
+    } else {
+            pembersihLayar();
+            cout << "Pelanggan gagal ditambahkan\n"
+            << endl;
+    }
     }
     else if (pilihan == 2){
+           pembersihLayar();
            manajemenPelanggan.tampilkanDataPelanggan();
     }
     else {
+            pembersihLayar();
+            cout << "Menu yang dimasukkan tidak ditemukan, pastikan menu yang dimasukkan sesuai dengan nomor menu\n"
+            << endl;
             break;
     }
 } else if (pilihan == 4) {
-        
+    
+    pembersihLayar();   
     cout << "Masukkan pilihan : \n1. Checkout Resep\n2. Tampilkan Data Transaksi" << endl;
     
     cin >> pilihan;
     
     if (pilihan == 1){
     int nomorResep;
-        
+    
+    pembersihLayar();    
     manajemenResep.tampilkanResep();
     
     cout << "Pilih resep yang ingin dibayar : ";
@@ -639,13 +737,17 @@ string tanggal(date);
 
             totalHarga = totalHarga + perulanganObat->harga;
             
-            perulanganObat->stok = perulanganObat->stok - 1;
-            
             perulanganObat = perulanganObat->selanjutnya;
             
     }
     
-    manajemenPenjualan.catatPenjualan(resep, totalHarga, tanggal);
+    if(manajemenPenjualan.catatPenjualan(resep, totalHarga, tanggal)){
+            pembersihLayar();
+            cout << "Transaksi berhasil\n" << endl;
+    } else {
+            pembersihLayar();
+            cout << "Transaksi gagal\n" << endl;
+    }
     
     ofstream struk("Struk.txt");
     
@@ -674,46 +776,77 @@ string tanggal(date);
     struk << totalHarga;
      
     struk.close();
+    
+    cout << "Struk berhasil dibuat\n"
+    << endl;
+    } else {
+            cout << "Gagal membuka file\n"
+            << endl;
     }
     
     }
     } else if (pilihan == 2){
+         pembersihLayar();
          manajemenPenjualan.tampilkanTransaksi(); 
     } else {
+            cout << "Menu yang dimasukkan tidak ditemukan, pastikan menu yang dimasukkan sesuai dengan nomor menu\n"
+            << endl;
             break;
     }
     
 } else if (pilihan == 5) {
         
+    pembersihLayar();
     cout << "Masukan pilihan : \n1. Cetak Laporan Inventaris Obat\n2. Cetak Laporan Penjualan Harian\n3. Cetak Riwayat Resep\n\n: ";
     
     cin >> pilihan;
     
     if (pilihan == 1){
-            apotek.cetakLaporanInventaris();
+            pembersihLayar();
+            if(apotek.cetakLaporanInventaris()){
+                    cout << "Laporan inventaris obat berhasil dicetak\nLaporan dapat dibuka di file .txt yang ada di folder tempat file c++ ini berada\n" <<
+                    endl;
+            }
     } else if (pilihan == 2){
-            manajemenPenjualan.cetakLaporanPenjualanHarian(&tanggal);
+            pembersihLayar();
+            if(manajemenPenjualan.cetakLaporanPenjualanHarian(&tanggal)){
+                    cout << "Laporan penjualan bulanan berhasil dicetak\nLaporan dapat dibuka di file .txt yang ada di folder tempat file c++ ini berada\n" <<
+                    endl;
+            }
     } else if (pilihan == 3){
             
+            pembersihLayar();
             manajemenPelanggan.tampilkanDataPelanggan();
             
             cout << "Masukkan Nomor Pelanggan Yang Ingin Dicetak Riwayat Resepnya : ";
             
             cin >> pilihan;
             
-            manajemenResep.cetakRiwayatResep(&pilihan);
+            pembersihLayar();
+            if (manajemenResep.cetakRiwayatResep(&pilihan)){
+                   cout << "Riwayat resep berhasil dicetak\nRiwayat resep dapat dibuka di file .txt yang ada di folder tempat file c++ ini berada\n" <<
+                    endl;
+            } else {
+                    cout << "Pelanggan Belum Memiliki Riwayat Resep\n"
+                    << endl;
+            }
             
     } else {
+            pembersihLayar();
+            cout << "Menu yang dimasukkan tidak ditemukan, pastikan menu yang dimasukkan sesuai dengan nomor menu\n"
+            << endl;
             break;
     }
         
 }
 else if (pilihan == 6) {
-        std::cout << "Terima kasih telah menggunakan program ini! Program berhasil dihentikan." << std::endl;
+        pembersihLayar();
+        cout << "Terima kasih telah menggunakan program ini! Program berhasil dihentikan." << endl;
         break;
     } 
     else {
-        std::cout << "Pilihan tidak valid. Silakan pilih angka 1-6." << std::endl;
+        pembersihLayar();
+        cout << "Pilihan tidak valid. Silakan pilih angka 1-6\n" << endl;
     }
     }
     }
