@@ -481,13 +481,13 @@ string tanggal(date);
     apotek.tambahObat("Obat A", 100, 3000);
     apotek.tambahObat("Obat B", 50, 5000);
     apotek.tambahObat("Obat C", 75, 2000);
-    apotek.tambahObat("Obat D", 30, 15.0);
-    apotek.tambahObat("Obat E", 60, 8.75);
-    apotek.tambahObat("Obat F", 25, 12.3);
-    apotek.tambahObat("Obat G", 90, 9.0);
-    apotek.tambahObat("Obat H", 40, 11.5);
-    apotek.tambahObat("Obat I", 55, 6.9);
-    apotek.tambahObat("Obat J", 70, 14.7);
+    apotek.tambahObat("Obat D", 30, 1500);
+    apotek.tambahObat("Obat E", 60, 8000);
+    apotek.tambahObat("Obat F", 25, 1200);
+    apotek.tambahObat("Obat G", 90, 9000);
+    apotek.tambahObat("Obat H", 40, 1100);
+    apotek.tambahObat("Obat I", 55, 6000);
+    apotek.tambahObat("Obat J", 70, 14000);
     
     for (int i = 0; i < 10; i++) {
         string nama = "Pelanggan " + to_string(i + 1);
