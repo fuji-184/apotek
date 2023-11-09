@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include <vector>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 
@@ -32,12 +32,21 @@ public:
     }
 
     void tambahObat(string nama, int stok, double harga) {
-        Obat* obatBaru = new Obat(nama, stok, harga);
-        obatBaru->selanjutnya = daftarObat;
+    Obat* obatBaru = new Obat(nama, stok, harga);
+    obatBaru->selanjutnya = nullptr;
+
+    if (daftarObat == nullptr) {
         daftarObat = obatBaru;
-        
-        obatBaru->nomorObat = nomorObat;
-        nomorObat++;
+    } else {
+        Obat* terakhir = daftarObat;
+        while (terakhir->selanjutnya != nullptr) {
+            terakhir = terakhir->selanjutnya;
+        }
+        terakhir->selanjutnya = obatBaru;
+    }
+    
+    obatBaru->nomorObat = nomorObat;
+    nomorObat++;
     }
 
     void hapusObat(int _nomorObat) {
@@ -66,30 +75,26 @@ public:
 
         cout << "Daftar Obat Tersedia:" << endl;
         while (sekarang != nullptr) {
-            cout << "Nomor Obat : " << sekarang->nomorObat << " | Nama: " << sekarang->nama << " | Stok: " <<
-            sekarang->stok << " | Harga: " << sekarang->harga << endl;
+            cout << "Nomor Obat : "
+            << sekarang->nomorObat
+            << "\nNama : "
+            << sekarang->nama
+            << "\nStok: "
+            << sekarang->stok
+            << "\nHarga: "
+            << sekarang->harga
+            << "\n\n"
+            << endl;
+            
             sekarang = sekarang->selanjutnya;
         }
     }
     
-    Obat* cariObat(string nama) {
+    Obat* cariObat(int* _nomorObat) {
         Obat* obatSekarang = daftarObat;
 
         while (obatSekarang != nullptr) {
-            if (obatSekarang->nama == nama) {
-                return obatSekarang;
-            }
-            obatSekarang = obatSekarang->selanjutnya;
-        }
-
-        return nullptr;
-    }
-    
-    Obat* cariObat(int nomor) {
-        Obat* obatSekarang = daftarObat;
-
-        while (obatSekarang != nullptr) {
-            if (obatSekarang->nomorObat == nomor) {
+            if (obatSekarang->nomorObat == *_nomorObat) {
                 return obatSekarang;
             }
             obatSekarang = obatSekarang->selanjutnya;
@@ -99,100 +104,33 @@ public:
     }
     
     void cetakLaporanInventaris() {
-    Obat* obatSekarang = daftarObat;
-
-    cout << "Laporan Inventaris Obat:" << endl;
-    while (obatSekarang != nullptr) {
-
-        cout << "Nama: " << obatSekarang->nama << endl;
-        cout << "Stok: " << obatSekarang->stok << endl;
-        cout << "Harga: " << obatSekarang->harga << endl;
-
-        obatSekarang = obatSekarang->selanjutnya;
-    }
-}
-};
-
-struct ObatDiresepkan {
-        string nama;
-        double harga;
+  
+    ofstream laporanInventarisObat("Laporan Inventaris Obat.txt");
+    
+    if (laporanInventarisObat.is_open()){
+       
+        Obat* obatSekarang = daftarObat;
         
-        ObatDiresepkan(string _nama, double _harga){
-                nama = _nama;
-                harga = _harga;
-        };
-};
-
-struct Resep {
-    int nomorResep;
-    int nomorPelanggan;
-    string namaPelanggan;
-    string tanggal;
-    vector <ObatDiresepkan> obatDiresepkan;
-    Resep* selanjutnya;
-
-    Resep(int _nomorResep, int _nomorPelanggan, string _namaPelanggan, string _tanggal) {
-        nomorResep = _nomorResep;
-        nomorPelanggan = _nomorPelanggan;
-        namaPelanggan = _nomorPelanggan;
-        tanggal = _tanggal;
-        selanjutnya = nullptr;
-    }
-};
-
-class ManajemenResep {
-private:
-    Resep* daftarResep;
-    int nomorResep;
-
-public:
-    ManajemenResep() {
-        daftarResep = nullptr;
-        nomorResep = 1;
-    }
-
-    void tambahResep(int _nomorPelanggan, string _namaPelanggan, string tanggal, Obat* obat) {
-        Resep* resepBaru = new Resep(nomorResep, _nomorPelanggan,
-        _namaPelanggan, tanggal);
-        
-        if (daftarResep != nullptr) {
-            ObatDiresepkan obatDiresepkan(obat->nama, obat->harga);
-            resepBaru->obatDiresepkan.push_back(obatDiresepkan);
+        while (obatSekarang != nullptr){
+                laporanInventarisObat << "Nomor Obat : "
+                << obatSekarang->nomorObat
+                << "\nNama Obat : "
+                << obatSekarang->nama
+                << "\nStok : "
+                << obatSekarang->stok
+                << "\nHarga : "
+                << obatSekarang->harga
+                << "\n\n"
+                << endl;
+                
+                obatSekarang = obatSekarang->selanjutnya;
+                
         }
         
-        resepBaru->selanjutnya = daftarResep;
-        daftarResep = resepBaru;
+        laporanInventarisObat.close();
         
-        resepBaru->nomorResep = nomorResep;
-        nomorResep++;
-    }
-
-    void tampilkanResep() {
-        Resep* resep = daftarResep;
-
-        cout << "Daftar Resep:" << endl;
-        while (resep != nullptr) {
-            cout << "Nama Pelanggan : " 
-            << resep->namaPelanggan 
-            << " | Nomor Resep: " << resep->nomorResep << " | Tanggal: " << resep->tanggal << " | Obat: " << endl;
-            for (const ObatDiresepkan &obat : resep->obatDiresepkan) {
-        std::cout << "Nama: " << obat.nama << ", Harga: " << obat.harga << std::endl;
-    }
-            resep = resep->selanjutnya;
-        }
     }
     
-    void cetakRiwayatResep() {
-    Resep* resepSekarang = daftarResep;
-
-    cout << "Riwayat Resep:" << endl;
-    while (resepSekarang != nullptr) {
-        cout << "Nomor Resep: " << resepSekarang->nomorResep << endl;
-        cout << "Tanggal: " << resepSekarang->tanggal << endl;
-        //looping obatDiresepkan
-
-        resepSekarang = resepSekarang->selanjutnya;
-    }
 }
 };
 
@@ -223,12 +161,20 @@ public:
     }
 
     void tambahPelanggan(string nama, string alamat, string nomorKontak) {
-        Pelanggan* pelangganBaru = new Pelanggan(nama, alamat, nomorKontak);
-        pelangganBaru->selanjutnya = daftarPelanggan;
+    Pelanggan* pelangganBaru = new Pelanggan(nama, alamat, nomorKontak);
+
+    if (daftarPelanggan == nullptr) {
         daftarPelanggan = pelangganBaru;
-        
-        pelangganBaru->nomorPelanggan = nomorPelanggan;
-        nomorPelanggan++;
+    } else {
+        Pelanggan* pelangganTerakhir = daftarPelanggan;
+        while (pelangganTerakhir->selanjutnya != nullptr) {
+            pelangganTerakhir = pelangganTerakhir->selanjutnya;
+        }
+        pelangganTerakhir->selanjutnya = pelangganBaru;
+    }
+
+    pelangganBaru->nomorPelanggan = nomorPelanggan;
+    nomorPelanggan++;
     }
 
     void tampilkanDataPelanggan() {
@@ -236,16 +182,27 @@ public:
 
         cout << "Data Pelanggan:" << endl;
         while (pelanggan != nullptr) {
-            cout << "Nomor Pelanggan : " << pelanggan->nomorPelanggan << " | Nama: " << pelanggan->nama << " | Alamat: " << pelanggan->alamat << " | Nomor Kontak: " << pelanggan->nomorKontak << endl;
+            cout << "Nomor Pelanggan : "
+            << pelanggan->nomorPelanggan
+            << "\nNama: "
+            << pelanggan->nama
+            << "\nAlamat: "
+            << pelanggan->alamat
+            << "\nNomor Kontak: "
+            << pelanggan->nomorKontak
+            << "\n\n"
+            << endl;
+            
             pelanggan = pelanggan->selanjutnya;
+            
         }
     }
     
-    Pelanggan* cariPelanggan(int _nomorPelanggan) {
+    Pelanggan* cariPelanggan(int* _nomorPelanggan) {
         Pelanggan* pelangganSekarang = daftarPelanggan;
 
         while (pelangganSekarang != nullptr) {
-            if (pelangganSekarang->nomorPelanggan == _nomorPelanggan) {
+            if (pelangganSekarang->nomorPelanggan == *_nomorPelanggan) {
                 return pelangganSekarang;
             }
             pelangganSekarang = pelangganSekarang->selanjutnya;
@@ -254,34 +211,125 @@ public:
         return nullptr;
     }
     
-    string cariNamaPelanggan(int _nomorPelanggan) {
-        Pelanggan* pelangganSekarang = daftarPelanggan;
+};
 
-        while (pelangganSekarang != nullptr) {
-            if (pelangganSekarang->nomorPelanggan == _nomorPelanggan) {
-                return pelangganSekarang->namaPelanggan;
-            }
-            pelangganSekarang = pelangganSekarang->selanjutnya;
-        }
+struct Resep {
+    int nomorResep;
+    Pelanggan* pelanggan;
+    string tanggal;
+    Obat* obatDiresepkan;
+    Resep* selanjutnya;
 
-        return NULL;
+    Resep(int _nomorResep, string _tanggal) {
+        nomorResep = _nomorResep;
+        pelanggan = nullptr;
+        tanggal = _tanggal;
+        obatDiresepkan = nullptr;
+        selanjutnya = nullptr;
     }
+};
+
+class ManajemenResep {
+private:
+    Resep* daftarResep;
+    int nomorResep;
+
+public:
+    ManajemenResep() {
+        daftarResep = nullptr;
+        nomorResep = 1;
+    }
+
+    void tambahResep(Pelanggan* pelanggan, string tanggal, Obat* obatDiresepkan) {
+            
+    Resep* resepBaru = new Resep(nomorResep, tanggal);
+
+    resepBaru->pelanggan = pelanggan;
+    resepBaru->obatDiresepkan = obatDiresepkan;
+    resepBaru->selanjutnya = nullptr;
+    
+    if (daftarResep == nullptr) {
+        daftarResep = resepBaru;
+    } else {
+        Resep* current = daftarResep;
+        while (current->selanjutnya != nullptr) {
+            current = current->selanjutnya;
+        }
+        current->selanjutnya = resepBaru;
+    }
+    nomorResep++;
+}
+
+    Resep* cariResep(int* nomor) {
+    Resep* resepSekarang = daftarResep;
+
+    while (resepSekarang != nullptr) {
+        if (resepSekarang->nomorResep == *nomor) {
+            return resepSekarang; 
+        }
+        resepSekarang = resepSekarang->selanjutnya;
+    }
+
+    return nullptr;
+    }
+    
+    void tampilkanResep() {
+    Resep* resep = daftarResep;
+
+    cout << "Daftar Resep :" << endl;
+    while (resep != nullptr) {
+        cout << "Nomor Resep : "
+        << resep->nomorResep
+        << "\nTanggal : "
+        << resep->tanggal
+        << "\nNomor Pelanggan : "
+        << resep->pelanggan->nomorPelanggan
+        << "\nNama Pelanggan : "
+        << resep->pelanggan->nama
+        << "\nObat Yang Diresepkan : "
+        << endl;
+
+        Obat* _obatDiresepkan = resep->obatDiresepkan;
+
+        while (_obatDiresepkan != nullptr) {
+            cout << "\nNama Obat : "
+            << _obatDiresepkan->nama
+            << "\n"
+            << endl;
+            
+            _obatDiresepkan = _obatDiresepkan->selanjutnya;
+            
+        }
+        
+        resep = resep->selanjutnya;
+        
+    }
+}
+    
+    void cetakRiwayatResep() {
+    Resep* resepSekarang = daftarResep;
+
+    cout << "Riwayat Resep:" << endl;
+    while (resepSekarang != nullptr) {
+        cout << "Nomor Resep: " << resepSekarang->nomorResep << endl;
+        cout << "Tanggal: " << resepSekarang->tanggal << endl;
+        //looping obatDiresepkan
+
+        resepSekarang = resepSekarang->selanjutnya;
+    }
+}
 };
 
 struct Transaksi {
     int nomorTransaksi;
-    string tanggal;
-    string pelanggan;
-    string obatDibeli;
+    Resep* resep;
     double totalHarga;
+    string tanggal;
     Transaksi* selanjutnya;
 
-    Transaksi(int _nomorTransaksi, string _tanggal, string _pelanggan, string _obatDibeli, double _totalHarga) {
-        nomorTransaksi = _nomorTransaksi;
-        tanggal = _tanggal;
-        pelanggan = _pelanggan;
-        obatDibeli = _obatDibeli;
+    Transaksi(double _totalHarga, string _tanggal) {
         totalHarga = _totalHarga;
+        tanggal = _tanggal;
         selanjutnya = nullptr;
     }
 };
@@ -289,49 +337,85 @@ struct Transaksi {
 class ManajemenPenjualan {
 private:
     Transaksi* daftarTransaksi;
+    int nomorTransaksi;
 
 public:
     ManajemenPenjualan() {
         daftarTransaksi = nullptr;
+        nomorTransaksi = 1;
     }
 
-    void catatPenjualan(int nomorTransaksi, string tanggal, string pelanggan, string obatDibeli, double totalHarga) {
-        Transaksi* transaksiBaru = new Transaksi(nomorTransaksi, tanggal, pelanggan, obatDibeli, totalHarga);
+    void catatPenjualan(Resep* resep, double totalHarga, string tanggal) {
+
+        Transaksi* transaksiBaru = new Transaksi(totalHarga, tanggal);
+        
+        transaksiBaru->nomorTransaksi = nomorTransaksi;
+        
+        transaksiBaru->resep = resep;
+        
         transaksiBaru->selanjutnya = daftarTransaksi;
+        
         daftarTransaksi = transaksiBaru;
+        
+        nomorTransaksi++;
     }
 
     void tampilkanTransaksi() {
+            
         Transaksi* transaksi = daftarTransaksi;
 
         cout << "Daftar Transaksi Penjualan:" << endl;
+        
         while (transaksi != nullptr) {
-            cout << "Nomor Transaksi: " << transaksi->nomorTransaksi << " | Tanggal: " << transaksi->tanggal << " | Pelanggan: " << transaksi->pelanggan << " | Obat Dibeli: " << transaksi->obatDibeli << " | Total Harga: " << transaksi->totalHarga << endl;
+            cout << "Nomor Transaksi : "
+            << transaksi->nomorTransaksi
+            << "\nTanggal : "
+            << transaksi->tanggal
+            << "\nNomor Resep : "
+            << transaksi->resep->nomorResep
+            << "\nTotal Harga: "
+            << transaksi->totalHarga
+            << "\n\n"
+            << endl;
+            
             transaksi = transaksi->selanjutnya;
+            
         }
     }
     
-    void cetakLaporanPenjualanBulanan(string bulan, int tahun) {
-        cout << "Laporan Penjualan Bulanan (" << bulan << " " << tahun << "):" << endl;
-
-        double totalPenjualanBulanan = 0.0;
-        Transaksi* transaksiSekarang = daftarTransaksi;
-
-        while (transaksiSekarang != nullptr) {
-            string tanggalTransaksi = transaksiSekarang->tanggal;
-            string bulanTransaksi = tanggalTransaksi.substr(5, 2);
-            string tahunTransaksi = tanggalTransaksi.substr(0, 4);
-
-            if (bulanTransaksi == bulan && stoi(tahunTransaksi) == tahun) {
-                totalPenjualanBulanan += transaksiSekarang->totalHarga;
-            }
-
-            transaksiSekarang = transaksiSekarang->selanjutnya;
+    void cetakLaporanPenjualanHarian(string* tanggal ) {
+            
+        ofstream laporanPenjualanHarian("Laporan Penjualan Harian.txt");
+        
+        if (laporanPenjualanHarian.is_open()){
+                
+               Transaksi* transaksi = daftarTransaksi;
+               
+               while (transaksi != nullptr && transaksi->tanggal == *tanggal){
+                      laporanPenjualanHarian << "Nomor Transaksi : "
+                      << transaksi->nomorTransaksi
+                      << "\nTanggal : "
+                      << transaksi->tanggal
+                      << "\n Total Harga : "
+                      << transaksi->totalHarga
+                      << "\n\n"
+                      << endl;
+                      
+                    transaksi = transaksi->selanjutnya;
+               }
+               
+               laporanPenjualanHarian.close();
+               
         }
-
-        cout << "Total Penjualan Bulan " << bulan << " " << tahun << ": " << totalPenjualanBulanan << endl;
+        
     }
 };
+
+string dapatkanBulanDariTanggal(string& tanggal) {
+            
+    return tanggal.substr(5, 2);
+    
+}
 
 int main() {
     Apotek apotek;
@@ -345,9 +429,9 @@ char date[11]; // 11 karakter untuk "YYYY-MM-DD\0"
 strftime(date, 11, "%Y-%m-%d", now);
 string tanggal(date);
 
-    apotek.tambahObat("Obat A", 100, 10.5);
-    apotek.tambahObat("Obat B", 50, 5.75);
-    apotek.tambahObat("Obat C", 75, 7.2);
+    apotek.tambahObat("Obat A", 100, 3000);
+    apotek.tambahObat("Obat B", 50, 5000);
+    apotek.tambahObat("Obat C", 75, 2000);
     apotek.tambahObat("Obat D", 30, 15.0);
     apotek.tambahObat("Obat E", 60, 8.75);
     apotek.tambahObat("Obat F", 25, 12.3);
@@ -362,6 +446,7 @@ string tanggal(date);
         string nomorKontak = "Nomor Kontak " + to_string(i + 1);
         manajemenPelanggan.tambahPelanggan(nama, alamat, nomorKontak);
     }
+
 
     while (true) {
         cout << "Menu Navigasi:" << endl;
@@ -429,17 +514,53 @@ string tanggal(date);
             break;
     }
 } else if (pilihan == 2) {
+        
+    cout << "Masukkan pilihan : \n1. Tambah Resep\n2. Tampilkan Resep \n\n: ";
+    cin >> pilihan;
     
-    int nomorObat;
+    if (pilihan == 1){
+    int nomorPelanggan;
+        int nomorObat = 1;
+
+        manajemenPelanggan.tampilkanDataPelanggan();
+
+        cout << "Masukkan nomor Pelanggan : ";
+        cin >> nomorPelanggan;
+        
+        Pelanggan* pelanggan =
+        manajemenPelanggan.cariPelanggan(&nomorPelanggan);
+
+        Obat* obatDiresepkan = nullptr;
+
+        while (nomorObat != 0) {
+            apotek.tampilkanObatTersedia();
+
+            cout << "Masukkan nomor obat yang diresepkan (0 untuk selesai): ";
+            cin >> nomorObat;
+
+            if (nomorObat != 0) {
+                Obat* _obat = apotek.cariObat(&nomorObat);
+
+if (_obat != nullptr) {
+         _obat->selanjutnya = obatDiresepkan;
+         obatDiresepkan = _obat;
+                }
+            }
+        }
+
+        if (pelanggan != nullptr) {
+            manajemenResep.tambahResep(pelanggan, tanggal, obatDiresepkan);
+        }
+        else {
+            cout << "Pelanggan tidak ditemukan." << endl;
+        }
     
-    apotek.tampilkanObatTersedia();
-    
-    cout << "Masukkan nomor obat yang diresepkan: ";
-    cin >> nomorObat;
-    
-    Obat* obat = apotek.cariObat(nomorObat);
-    
-    manajemenResep.tambahResep(tanggal, obat);
+    } else if (pilihan == 2){
+            manajemenResep.tampilkanResep();
+    } else {
+            break;
+    }
+        
 } else if (pilihan == 3) {
         
     cout << "Masukkan Menu : \n"
@@ -472,68 +593,92 @@ string tanggal(date);
             break;
     }
 } else if (pilihan == 4) {
+        
+    cout << "Masukkan pilihan : \n1. Checkout Resep\n2. Tampilkan Data Transaksi" << endl;
+    
+    cin >> pilihan;
+    
+    if (pilihan == 1){
+    int nomorResep;
+        
+    manajemenResep.tampilkanResep();
+    
+    cout << "Pilih resep yang ingin dibayar : ";
+    
+    cin >> nomorResep;
+    
+    Resep* resep = manajemenResep.cariResep(&nomorResep);
+    
+    if (resep != nullptr){
+      
+    Obat* perulanganObat = resep->obatDiresepkan;
+    
+    double totalHarga = 0;
+    
+    while (perulanganObat != nullptr){
 
-    int nomorTransaksi;
-    string tanggalTransaksi;
-    string namaPelanggan;
-    string obatDibeli;
-    double totalHarga;
-    
-    cout << "Masukkan nomor transaksi: ";
-    cin >> nomorTransaksi;
-    
-    cout << "Masukkan tanggal transaksi (YYYY-MM-DD): ";
-    cin >> tanggalTransaksi;
-    
-    cout << "Masukkan nama pelanggan: ";
-    cin >> namaPelanggan;
-    
-    cout << "Masukkan obat yang dibeli: ";
-    cin >> obatDibeli;
-    
-    cout << "Masukkan total harga: ";
-    cin >> totalHarga;
-    
-    Obat* obatYangDibeli = apotek.cariObat(obatDibeli);
-if (obatYangDibeli != nullptr) {
-    if (obatYangDibeli->stok >= 1) {
-        manajemenPenjualan.catatPenjualan(nomorTransaksi, tanggalTransaksi, namaPelanggan, obatDibeli, totalHarga);
-        obatYangDibeli->stok--;
-    } else {
-        cout << "Stok obat " << obatDibeli << " sudah habis." << endl;
+            totalHarga = totalHarga + perulanganObat->harga;
+            
+            perulanganObat->stok = perulanganObat->stok - 1;
+            
+            perulanganObat = perulanganObat->selanjutnya;
+            
     }
-} else {
-    cout << "Obat " << obatDibeli << " tidak ditemukan." << endl;
-}
+    
+    manajemenPenjualan.catatPenjualan(resep, totalHarga, tanggal);
+    
+    ofstream struk("Struk.txt");
+    
+    if (struk.is_open()){
+            
+    struk << "Nama : "
+    << resep->pelanggan->nama
+    << endl;
+            
+    perulanganObat = resep->obatDiresepkan;
+    
+    struk << "\nObat : \n" << endl;
+    
+    while (perulanganObat != nullptr){
 
-
+            struk << perulanganObat->nama
+            << "  : "
+            << perulanganObat->harga
+            << "\n"
+            << endl;
+            
+            perulanganObat = perulanganObat->selanjutnya;
+            
+    }
+    
+    struk << totalHarga;
+     
+    struk.close();
+    }
+    
+    }
+    } else if (pilihan == 2){
+         manajemenPenjualan.tampilkanTransaksi(); 
+    } else {
+            break;
+    }
+    
 } else if (pilihan == 5) {
-
-    string jenisLaporan;
-    cout << "Pilih jenis laporan (inventaris/penjualan/riwayat): ";
-    cin >> jenisLaporan;
+        
+    cout << "Masukan pilihan : \n1. Cetak Laporan Inventaris Obat\n2. Cetak Laporan Penjualan Harian\n3. Cetak Riwayat Resep\n\n: ";
     
-    if (jenisLaporan == "inventaris") {
-
-        apotek.cetakLaporanInventaris();
-    } else if (jenisLaporan == "penjualan") {
-
-        string bulanLaporan;
-        int tahunLaporan;
-        
-        cout << "Masukkan bulan laporan: ";
-        cin >> bulanLaporan;
-        
-        cout << "Masukkan tahun laporan: ";
-        cin >> tahunLaporan;
-        
-        manajemenPenjualan.cetakLaporanPenjualanBulanan(bulanLaporan, tahunLaporan);
-
-    } else if (jenisLaporan == "riwayat") {
-        manajemenResep.cetakRiwayatResep();
+    cin >> pilihan;
+    
+    if (pilihan == 1){
+            apotek.cetakLaporanInventaris();
+    } else if (pilihan == 2){
+            manajemenPenjualan.cetakLaporanPenjualanHarian(&tanggal);
+    } else if (pilihan == 3){
+            break;
     } else {
-        cout << "Jenis laporan tidak valid." << endl;
+            break;
     }
+        
 }
 else if (pilihan == 6) {
         std::cout << "Terima kasih telah menggunakan program ini! Program berhasil dihentikan." << std::endl;
