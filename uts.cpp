@@ -308,9 +308,10 @@ public:
 }
     
     void cetakRiwayatResep(int* _nomorPelanggan) {
-    ofstream riwayatResep("Riwayat Resep.txt", ios::app);
+    ofstream riwayatResep("Riwayat Resep.txt");
 
     Resep* resepSekarang = daftarResep;
+    Obat* obat;
 
     while (resepSekarang != nullptr) {
         if (resepSekarang->pelanggan->nomorPelanggan == *_nomorPelanggan) {
@@ -318,7 +319,7 @@ public:
                 riwayatResep << "Riwayat Resep Untuk Pasien Bernama " << resepSekarang->pelanggan->nama << "\n\nTanggal : "
                             << resepSekarang->tanggal << "\n\nObat Yang Diresepkan :\n\n" << endl;
 
-                Obat* obat = resepSekarang->obatDiresepkan;
+                obat = resepSekarang->obatDiresepkan;
 
                 int i = 1;
 
@@ -534,42 +535,46 @@ string tanggal(date);
     
     if (pilihan == 1){
     int nomorPelanggan;
-        int nomorObat = 1;
+    int nomorObat = 1;
 
-        manajemenPelanggan.tampilkanDataPelanggan();
+    manajemenPelanggan.tampilkanDataPelanggan();
 
-        cout << "Masukkan nomor Pelanggan : ";
-        cin >> nomorPelanggan;
+    cout << "Masukkan nomor Pelanggan : ";
+    cin >> nomorPelanggan;
+
+    Pelanggan* pelanggan = manajemenPelanggan.cariPelanggan(&nomorPelanggan);
+
+    if (pelanggan != nullptr) {
+        Obat* obatDiresepkan = nullptr; 
         
-        Pelanggan* pelanggan =
-        manajemenPelanggan.cariPelanggan(&nomorPelanggan);
 
-        Obat* obatDiresepkan = nullptr;
 
         while (nomorObat != 0) {
-            apotek.tampilkanObatTersedia();
+    apotek.tampilkanObatTersedia();
 
-            cout << "Masukkan nomor obat yang diresepkan (0 untuk selesai): ";
-            cin >> nomorObat;
+    cout << "Masukkan nomor obat yang diresepkan (0 untuk selesai): ";
+    cin >> nomorObat;
 
-            if (nomorObat != 0) {
-                Obat* _obat = apotek.cariObat(&nomorObat);
+    if (nomorObat != 0) {
+        Obat* _obat = apotek.cariObat(&nomorObat);
 
-if (_obat != nullptr) {
-         _obat->selanjutnya = obatDiresepkan;
-         obatDiresepkan = _obat;
-                }
-            }
+        if (_obat != nullptr) {
+            // Tambahkan referensi obat ke dalam resep
+            _obat->selanjutnya = obatDiresepkan;
+            obatDiresepkan = _obat;
+        } else {
+            cout << "Obat dengan nomor tersebut tidak tersedia." << endl;
         }
+    }
+}
 
-        if (pelanggan != nullptr) {
-            manajemenResep.tambahResep(pelanggan, tanggal, obatDiresepkan);
-        }
-        else {
-            cout << "Pelanggan tidak ditemukan." << endl;
-        }
-    
-    } else if (pilihan == 2){
+
+        manajemenResep.tambahResep(pelanggan, tanggal, obatDiresepkan);
+    } else {
+        cout << "Pelanggan tidak ditemukan." << endl;
+    }
+}
+ else if (pilihan == 2){
             manajemenResep.tampilkanResep();
     } else {
             break;
